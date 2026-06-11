@@ -1,0 +1,4 @@
+*.mbt linguist-language=MoonBit
+
+web/** linguist-vendored
+web/** linguist-detectable=false
