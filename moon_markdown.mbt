@@ -2,18 +2,112 @@
 pub fn render(markdown : String) -> String {
   let out = StringBuilder::new()
   let mut first = true
+  let mut list_tag = ""
   for line in markdown.split("\n") {
     let trimmed = line.trim()
     if !trimmed.is_empty() {
-      if first {
-        first = false
-      } else {
-        out.write_stringview("\n")
+      match unordered_list_item_text(trimmed) {
+        Some(item) => {
+          if list_tag != "ul" {
+            if !list_tag.is_empty() {
+              close_list(out, list_tag)
+            }
+            first = open_list(out, first, "ul")
+            list_tag = "ul"
+          }
+          write_list_item(out, item)
+        }
+        None =>
+          match ordered_list_item_text(trimmed) {
+            Some(item) => {
+              if list_tag != "ol" {
+                if !list_tag.is_empty() {
+                  close_list(out, list_tag)
+                }
+                first = open_list(out, first, "ol")
+                list_tag = "ol"
+              }
+              write_list_item(out, item)
+            }
+            None => {
+              if !list_tag.is_empty() {
+                close_list(out, list_tag)
+                list_tag = ""
+              }
+              if first {
+                first = false
+              } else {
+                out.write_stringview("\n")
+              }
+              render_line(out, trimmed)
+            }
+          }
       }
-      render_line(out, trimmed)
     }
   }
+  if !list_tag.is_empty() {
+    close_list(out, list_tag)
+  }
   out.to_string()
+}
+
+///|
+fn unordered_list_item_text(line : StringView) -> StringView? {
+  line.strip_prefix("- ")
+}
+
+///|
+fn ordered_list_item_text(line : StringView) -> StringView? {
+  match find_from(line, 0, ". ") {
+    None => None
+    Some(dot_index) =>
+      if dot_index > 0 && all_digits(line.view(end_offset=dot_index)) {
+        Some(line.view(start_offset=dot_index + 2))
+      } else {
+        None
+      }
+  }
+}
+
+///|
+fn all_digits(text : StringView) -> Bool {
+  for ch in text {
+    if !is_digit(ch) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_digit(ch : Char) -> Bool {
+  ch == '0' || ch == '1' || ch == '2' || ch == '3' || ch == '4' ||
+  ch == '5' || ch == '6' || ch == '7' || ch == '8' || ch == '9'
+}
+
+///|
+fn open_list(out : StringBuilder, first : Bool, tag : StringView) -> Bool {
+  if !first {
+    out.write_stringview("\n")
+  }
+  out.write_stringview("<")
+  out.write_stringview(tag)
+  out.write_stringview(">")
+  false
+}
+
+///|
+fn close_list(out : StringBuilder, tag : StringView) -> Unit {
+  out.write_stringview("\n</")
+  out.write_stringview(tag)
+  out.write_stringview(">")
+}
+
+///|
+fn write_list_item(out : StringBuilder, text : StringView) -> Unit {
+  out.write_stringview("\n<li>")
+  write_inline(out, text)
+  out.write_stringview("</li>")
 }
 
 ///|

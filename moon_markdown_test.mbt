@@ -31,6 +31,30 @@ test "render links" {
 }
 
 ///|
+test "render unordered lists" {
+  inspect(
+    render("- Use `moon check`\n- Escape <html>"),
+    content="<ul>\n<li>Use <code>moon check</code></li>\n<li>Escape &lt;html&gt;</li>\n</ul>",
+  )
+}
+
+///|
+test "render ordered lists" {
+  inspect(
+    render("1. Parse\n2. Render [HTML](https://example.com/?q=<tag>)"),
+    content="<ol>\n<li>Parse</li>\n<li>Render <a href=\"https://example.com/?q=&lt;tag&gt;\">HTML</a></li>\n</ol>",
+  )
+}
+
+///|
+test "separate lists from surrounding blocks" {
+  inspect(
+    render("# Steps\n\n1. Parse\n2. Render\n\nDone"),
+    content="<h1>Steps</h1>\n<ol>\n<li>Parse</li>\n<li>Render</li>\n</ol>\n<p>Done</p>",
+  )
+}
+
+///|
 test "render inline markup in headings and link labels" {
   inspect(
     render("# Read [`docs`](https://example.com/docs)"),

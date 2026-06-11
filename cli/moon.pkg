@@ -1,0 +1,12 @@
+import {
+  "loviya/moon_markdown",
+  "moonbitlang/core/env",
+}
+
+is-main = true
+
+options(
+  targets: {
+    "main.mbt": [ "js" ],
+  },
+)
