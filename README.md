@@ -30,9 +30,41 @@ Add this package as a MoonBit dependency after it is published to mooncakes.io.
 For local development, clone the repository and run the standard MoonBit checks:
 
 ```bash
-/home/loviya/.moon/bin/moon check
-/home/loviya/.moon/bin/moon test
+moon check
+moon test
 ```
+
+## Usage Modes
+
+Moon Markdown is planned as one renderer with four usage modes:
+
+- CLI: convert Markdown files from the command line.
+- Online web app: use the renderer from a deployed browser page.
+- Local web app: run the same browser page from a local static server.
+- Local offline frontend package: download a static package and use it without a backend.
+
+The CLI and local web preview are available now. The online web app and offline
+frontend package are planned to reuse the same MoonBit `render(markdown)` core,
+with the browser UI kept in plain HTML/CSS/JS first.
+
+## Local Web Preview
+
+Build the browser entry and serve the repository root with a local static server:
+
+```bash
+moon build --target js
+python3 -m http.server 8080
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8080/web/
+```
+
+The page loads the generated MoonBit JS from
+`_build/js/debug/build/web/web.js`, so run `moon build --target js` again after
+changing MoonBit source code.
 
 ## Usage
 
@@ -52,10 +84,16 @@ let html = render("# Title\nHello [`MoonBit`](https://www.moonbitlang.com)")
 You can also render a Markdown file with the CLI package:
 
 ```bash
-/home/loviya/.moon/bin/moon run cli --target js README.md
+moon run cli --target js README.md
 ```
 
 The command writes HTML to stdout.
+
+To save the output:
+
+```bash
+moon run cli --target js README.md > output.html
+```
 
 ## Example
 

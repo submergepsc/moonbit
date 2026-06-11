@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moon Markdown Local Preview</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Moon Markdown</h1>
+        <p>Local Markdown to HTML preview powered by the MoonBit renderer.</p>
+      </div>
+      <button id="copy-html" type="button">Copy HTML</button>
+    </header>
+
+    <main class="workspace">
+      <section class="pane editor-pane" aria-labelledby="editor-title">
+        <div class="pane-header">
+          <h2 id="editor-title">Markdown</h2>
+          <span id="status" role="status">Ready</span>
+        </div>
+        <textarea id="markdown-input" spellcheck="false"></textarea>
+      </section>
+
+      <section class="pane preview-pane" aria-labelledby="preview-title">
+        <div class="pane-header">
+          <h2 id="preview-title">Preview</h2>
+        </div>
+        <article id="preview" class="preview"></article>
+      </section>
+
+      <section class="pane html-pane" aria-labelledby="html-title">
+        <div class="pane-header">
+          <h2 id="html-title">HTML</h2>
+        </div>
+        <pre><code id="html-output"></code></pre>
+      </section>
+    </main>
+
+    <script src="../_build/js/debug/build/web/web.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

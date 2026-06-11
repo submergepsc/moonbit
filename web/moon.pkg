@@ -1,0 +1,11 @@
+import {
+  "loviya/moon_markdown" @lib,
+}
+
+options(
+  "is-main": true,
+  targets: {
+    "browser_js.mbt": [ "js" ],
+    "browser_stub.mbt": [ "not", "js" ],
+  },
+)
