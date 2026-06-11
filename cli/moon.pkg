@@ -1,12 +1,12 @@
 import {
-  "loviya/moon_markdown",
+  "loviya/moon_markdown" @lib,
   "moonbitlang/core/env",
 }
 
-is-main = true
-
 options(
+  "is-main": true,
   targets: {
-    "main.mbt": [ "js" ],
+    "fs_js.mbt": [ "js" ],
+    "fs_stub.mbt": [ "not", "js" ],
   },
 )
