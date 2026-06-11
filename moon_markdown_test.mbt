@@ -55,6 +55,30 @@ test "separate lists from surrounding blocks" {
 }
 
 ///|
+test "render fenced code blocks" {
+  inspect(
+    render("# Example\n```moonbit\nlet x = 1\nprintln(x)\n```\nDone"),
+    content="<h1>Example</h1>\n<pre><code>let x = 1\nprintln(x)</code></pre>\n<p>Done</p>",
+  )
+}
+
+///|
+test "escape fenced code without inline markup" {
+  inspect(
+    render("```\nUse `code` and <tag> & [link](url)\n```"),
+    content="<pre><code>Use `code` and &lt;tag&gt; &amp; [link](url)</code></pre>",
+  )
+}
+
+///|
+test "close unclosed fenced code at end" {
+  inspect(
+    render("Before\n```\nlet html = \"<p>\""),
+    content="<p>Before</p>\n<pre><code>let html = &quot;&lt;p&gt;&quot;</code></pre>",
+  )
+}
+
+///|
 test "render inline markup in headings and link labels" {
   inspect(
     render("# Read [`docs`](https://example.com/docs)"),

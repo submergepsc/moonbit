@@ -3,9 +3,18 @@ pub fn render(markdown : String) -> String {
   let out = StringBuilder::new()
   let mut first = true
   let mut list_tag = ""
+  let mut in_code_block = false
+  let mut first_code_line = true
   for line in markdown.split("\n") {
     let trimmed = line.trim()
-    if !trimmed.is_empty() {
+    if in_code_block {
+      if is_code_fence(trimmed) {
+        close_code_block(out)
+        in_code_block = false
+      } else {
+        first_code_line = write_code_block_line(out, line, first_code_line)
+      }
+    } else if !trimmed.is_empty() {
       match unordered_list_item_text(trimmed) {
         Some(item) => {
           if list_tag != "ul" {
@@ -34,12 +43,18 @@ pub fn render(markdown : String) -> String {
                 close_list(out, list_tag)
                 list_tag = ""
               }
-              if first {
-                first = false
+              if is_code_fence(trimmed) {
+                first = open_code_block(out, first)
+                in_code_block = true
+                first_code_line = true
               } else {
-                out.write_stringview("\n")
+                if first {
+                  first = false
+                } else {
+                  out.write_stringview("\n")
+                }
+                render_line(out, trimmed)
               }
-              render_line(out, trimmed)
             }
           }
       }
@@ -48,7 +63,15 @@ pub fn render(markdown : String) -> String {
   if !list_tag.is_empty() {
     close_list(out, list_tag)
   }
+  if in_code_block {
+    close_code_block(out)
+  }
   out.to_string()
+}
+
+///|
+fn is_code_fence(line : StringView) -> Bool {
+  line.strip_prefix("```") is Some(_)
 }
 
 ///|
@@ -108,6 +131,33 @@ fn write_list_item(out : StringBuilder, text : StringView) -> Unit {
   out.write_stringview("\n<li>")
   write_inline(out, text)
   out.write_stringview("</li>")
+}
+
+///|
+fn open_code_block(out : StringBuilder, first : Bool) -> Bool {
+  if !first {
+    out.write_stringview("\n")
+  }
+  out.write_stringview("<pre><code>")
+  false
+}
+
+///|
+fn close_code_block(out : StringBuilder) -> Unit {
+  out.write_stringview("</code></pre>")
+}
+
+///|
+fn write_code_block_line(
+  out : StringBuilder,
+  text : StringView,
+  first_line : Bool
+) -> Bool {
+  if !first_line {
+    out.write_stringview("\n")
+  }
+  write_escaped(out, text)
+  false
 }
 
 ///|

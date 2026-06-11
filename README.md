@@ -19,6 +19,7 @@ supported feature.
 - Paragraphs
 - Unordered lists with `- item`
 - Ordered lists with `1. item`
+- Fenced code blocks with triple backticks
 - Inline code with `` `code` ``
 - Links with `[label](url)`
 - HTML escaping for `&`, `<`, `>`, and `"`
@@ -86,10 +87,25 @@ Output:
 </ul>
 ```
 
+Fenced code blocks are escaped and do not apply inline markup:
+
+````moonbit
+let markdown = "```moonbit\nlet html = \"<p>\"\n```"
+let html = render(markdown)
+````
+
+Output:
+
+```html
+<pre><code>let html = &quot;&lt;p&gt;&quot;</code></pre>
+```
+
 ## Escaping
 
 Text content is HTML-escaped by default. This includes plain text, inline code,
 link labels, and link URLs, so input like `<tag>` is rendered as `&lt;tag&gt;`.
+Code block contents are also escaped, but inline markup is not expanded inside
+code blocks.
 
 ## License
 
