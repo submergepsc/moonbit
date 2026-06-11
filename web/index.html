@@ -12,7 +12,12 @@
         <h1>Moon Markdown</h1>
         <p>Local Markdown to HTML preview powered by the MoonBit renderer.</p>
       </div>
-      <button id="copy-html" type="button">Copy HTML</button>
+      <div class="actions">
+        <label class="file-button" for="file-input">Open Markdown</label>
+        <input id="file-input" type="file" accept=".md,.markdown,text/markdown,text/plain" />
+        <button id="download-html" type="button">Download HTML</button>
+        <button id="copy-html" type="button">Copy HTML</button>
+      </div>
     </header>
 
     <main class="workspace">

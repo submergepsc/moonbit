@@ -66,6 +66,12 @@ The page loads the generated MoonBit JS from
 `_build/js/debug/build/web/web.js`, so run `moon build --target js` again after
 changing MoonBit source code.
 
+The local web page supports both live editing and whole-file conversion:
+
+- Open a Markdown file with `Open Markdown`.
+- Preview the rendered HTML in the browser.
+- Save a standalone HTML file with `Download HTML`.
+
 ## Usage
 
 Import the package and call `render(markdown)` with a Markdown string:
@@ -89,10 +95,10 @@ moon run cli --target js README.md
 
 The command writes HTML to stdout.
 
-To save the output:
+To convert a whole Markdown file into an HTML file:
 
 ```bash
-moon run cli --target js README.md > output.html
+moon run cli --target js README.md output.html
 ```
 
 ## Example
