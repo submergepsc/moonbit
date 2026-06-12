@@ -23,6 +23,7 @@ supported feature.
 - Inline code with `` `code` ``
 - Strong text with `**text**`
 - Links with `[label](url)`
+- Images with `![alt](src)`
 - Horizontal rules with `---`
 - Pipe tables with `| cell | cell |`
 - HTML escaping for `&`, `<`, `>`, and `"`
@@ -132,6 +133,19 @@ Output:
 <li>Parse Markdown</li>
 <li>Escape &lt;html&gt;</li>
 </ul>
+```
+
+Images render as `<img>` elements with escaped `alt` and `src` attributes:
+
+```moonbit
+let markdown = "![MoonBit logo](/assets/moon.png)"
+let html = render(markdown)
+```
+
+Output:
+
+```html
+<p><img alt="MoonBit logo" src="/assets/moon.png"></p>
 ```
 
 Fenced code blocks are escaped and do not apply inline markup:

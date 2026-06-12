@@ -290,11 +290,16 @@ fn write_inline_from(
   match find_next_inline_marker(text, start) {
     None => write_escaped(out, text.view(start_offset=start))
     Some(marker_index) =>
-      match text.view(start_offset=marker_index, end_offset=marker_index + 1) {
-        "`" => write_code_span(out, text, start, marker_index)
-        "[" => write_link(out, text, start, marker_index)
-        "*" => write_strong(out, text, start, marker_index)
-        _ => write_escaped(out, text.view(start_offset=start))
+      if marker_index + 1 < text.length() &&
+        text.view(start_offset=marker_index, end_offset=marker_index + 2) == "![" {
+        write_image(out, text, start, marker_index)
+      } else {
+        match text.view(start_offset=marker_index, end_offset=marker_index + 1) {
+          "`" => write_code_span(out, text, start, marker_index)
+          "*" => write_strong(out, text, start, marker_index)
+          "[" => write_link(out, text, start, marker_index)
+          _ => write_escaped(out, text.view(start_offset=start))
+        }
       }
   }
 }
@@ -302,7 +307,10 @@ fn write_inline_from(
 ///|
 fn find_next_inline_marker(text : StringView, start : Int) -> Int? {
   earliest_index(
-    earliest_index(find_from(text, start, "`"), find_from(text, start, "[")),
+    earliest_index(
+      earliest_index(find_from(text, start, "`"), find_from(text, start, "![")),
+      find_from(text, start, "["),
+    ),
     find_from(text, start, "**"),
   )
 }
@@ -384,6 +392,36 @@ fn write_link(
             write_inline(out, text.view(start_offset=open_index + 1, end_offset=label_end))
             out.write_stringview("</a>")
             write_inline_from(out, text, url_end + 1)
+          }
+        }
+      } else {
+        write_escaped(out, text.view(start_offset=start))
+      }
+  }
+}
+
+///|
+fn write_image(
+  out : StringBuilder,
+  text : StringView,
+  start : Int,
+  open_index : Int
+) -> Unit {
+  match find_from(text, open_index + 2, "]") {
+    None => write_escaped(out, text.view(start_offset=start))
+    Some(alt_end) =>
+      if alt_end + 1 < text.length() &&
+        text.view(start_offset=alt_end + 1, end_offset=alt_end + 2) == "(" {
+        match find_from(text, alt_end + 2, ")") {
+          None => write_escaped(out, text.view(start_offset=start))
+          Some(src_end) => {
+            write_escaped(out, text.view(start_offset=start, end_offset=open_index))
+            out.write_stringview("<img alt=\"")
+            write_escaped(out, text.view(start_offset=open_index + 2, end_offset=alt_end))
+            out.write_stringview("\" src=\"")
+            write_escaped(out, text.view(start_offset=alt_end + 2, end_offset=src_end))
+            out.write_stringview("\">")
+            write_inline_from(out, text, src_end + 1)
           }
         }
       } else {

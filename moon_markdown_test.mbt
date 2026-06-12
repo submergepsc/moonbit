@@ -31,6 +31,22 @@ test "render links" {
 }
 
 ///|
+test "render images" {
+  inspect(
+    render("Logo: ![MoonBit logo](/assets/moon.png)"),
+    content="<p>Logo: <img alt=\"MoonBit logo\" src=\"/assets/moon.png\"></p>",
+  )
+}
+
+///|
+test "escape image alt text and source" {
+  inspect(
+    render("![`Moon` <logo>](https://example.com/logo.png?q=<tag>&size=1)"),
+    content="<p><img alt=\"`Moon` &lt;logo&gt;\" src=\"https://example.com/logo.png?q=&lt;tag&gt;&amp;size=1\"></p>",
+  )
+}
+
+///|
 test "render strong text" {
   inspect(
     render("Learn **computer networks** with `MoonBit`"),
@@ -73,7 +89,9 @@ test "separate lists from surrounding blocks" {
 ///|
 test "render pipe tables" {
   inspect(
-    render("|英文术语|缩写|中文含义|\n|---|---|---|\n|Network|net|网络|\n|Host|host|主机|\n\nDone"),
+    render(
+      "|英文术语|缩写|中文含义|\n|---|---|---|\n|Network|net|网络|\n|Host|host|主机|\n\nDone",
+    ),
     content="<table>\n<tr><td>英文术语</td><td>缩写</td><td>中文含义</td></tr>\n<tr><td>Network</td><td>net</td><td>网络</td></tr>\n<tr><td>Host</td><td>host</td><td>主机</td></tr>\n</table>\n<p>Done</p>",
   )
 }
@@ -113,7 +131,7 @@ test "render inline markup in headings and link labels" {
 ///|
 test "leave incomplete inline markup escaped" {
   inspect(
-    render("Use `code and [link](https://example.com"),
-    content="<p>Use `code and [link](https://example.com</p>",
+    render("Use `code and [link](https://example.com and ![img](src"),
+    content="<p>Use `code and [link](https://example.com and ![img](src</p>",
   )
 }
