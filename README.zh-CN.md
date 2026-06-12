@@ -22,7 +22,7 @@ MoonBit `render(markdown)` 核心，因此不同入口的输出保持一致。
 - 下载或复制渲染后的 HTML。
 - 在 StackEdit 中对比 Markdown 效果，或在 CodePen 中查看 HTML 视觉效果。
 
-### 命令行
+![](image.png) 
 
 你可以使用 CLI 包在命令行中转换 Markdown 文件。
 

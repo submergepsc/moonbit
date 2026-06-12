@@ -23,6 +23,8 @@ The easiest way to try it is the live demo at
 - Download or copy the rendered HTML.
 - Open in StackEdit for Markdown comparison or CodePen for HTML visual check.
 
+![](image.png)
+
 ### CLI
 
 Use the CLI package to convert Markdown files from the command line.
