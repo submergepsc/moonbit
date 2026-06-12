@@ -7,61 +7,20 @@ Moon Markdown 是一个用 MoonBit 编写的小型 Markdown to HTML 渲染器。
 它专注于一个实用、可预测、易嵌入的 Markdown 子集，适合 MoonBit 工具、示例、
 文档生成器和学习项目使用。
 
+**在线演示**：[moonbit.submergepsc.asia](https://moonbit.submergepsc.asia)
+
 ## 第一部分：如何使用 Moon Markdown
 
 Moon Markdown 围绕同一个渲染核心提供多种使用方式。CLI 和浏览器 UI 复用同一套
 MoonBit `render(markdown)` 核心，因此不同入口的输出保持一致。
 
-### 在线网站
+最快捷的体验方式是在线演示 [moonbit.submergepsc.asia](https://moonbit.submergepsc.asia)，
+它提供：
 
-后续会提供一个在线网站，用户可以直接在浏览器里使用，不需要安装 MoonBit，也不
-需要 clone 仓库。
-
-在线网站计划提供和本地 Web UI 相同的操作流程：
-
-- 在编辑器中粘贴或输入 Markdown。
-- 预览渲染后的 HTML。
+- Markdown 编辑器及实时预览。
 - 从本机上传 Markdown 文件。
-- 下载转换后的 HTML 文件。
-
-### 本地 Web UI
-
-你也可以使用 Python 自带的静态服务器在本地运行 Web UI。
-
-先构建浏览器入口：
-
-```bash
-moon build --target js
-```
-
-在仓库根目录启动静态服务器：
-
-```bash
-python3 -m http.server 8080
-```
-
-然后打开：
-
-```text
-http://127.0.0.1:8080/web/
-```
-
-页面会加载 MoonBit 生成的 JavaScript 文件：
-
-```text
-_build/js/debug/build/web/web.js
-```
-
-修改 MoonBit 源码后，需要重新运行 `moon build --target js`。
-
-本地 Web UI 同时支持实时编辑和整文件转换：
-
-- `Open Markdown`：上传本地 `.md` 文件到编辑器。
-- HTML preview：在浏览器中预览渲染结果。
-- `Copy HTML`：复制渲染后的 HTML。
-- `Download HTML`：下载独立的 `.html` 文件。
-- `Markdown Preview (StackEdit)`：复制 Markdown 到剪贴板并在 StackEdit 中打开，用于对比标准渲染效果。
-- `HTML Preview (CodePen)`：复制渲染后的 HTML 到剪贴板并在 CodePen 中打开，用于查看视觉效果。
+- 下载或复制渲染后的 HTML。
+- 在 StackEdit 中对比 Markdown 效果，或在 CodePen 中查看 HTML 视觉效果。
 
 ### 命令行
 
@@ -110,6 +69,17 @@ moon test
 ```
 
 发布到 mooncakes.io 后，README 会补充真实的包安装命令。
+
+本地运行 Web UI：
+
+```bash
+moon build --target js
+python3 -m http.server 8080
+```
+
+打开 `http://127.0.0.1:8080/web/`。页面加载 MoonBit 生成的 JavaScript
+文件 `_build/js/debug/build/web/web.js`。修改 MoonBit 源码后需要重新运行
+`moon build --target js`。
 
 ## 第二部分：项目细节
 
@@ -473,13 +443,13 @@ ___
 </p>
 ```
 
-### HTML 转义
+## HTML 转义
 
 文本内容默认进行 HTML 转义。包括普通文本、行内代码、链接标签、图片替代文本、
 链接 URL 和图片源，因此输入 `<tag>` 会被渲染为 `&lt;tag&gt;`。
 
 代码块内容同样会被转义，但代码块内部不会展开行内标记。
 
-### 许可证
+## 许可证
 
 Moon Markdown 采用 Apache License 2.0 许可证。

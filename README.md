@@ -7,62 +7,21 @@ Moon Markdown is a small Markdown to HTML renderer written in MoonBit.
 It focuses on a practical, small Markdown subset that is easy to embed in
 MoonBit tools, examples, documentation generators, and learning projects.
 
+**Live Demo**: [moonbit.submergepsc.asia](https://moonbit.submergepsc.asia)
+
 ## Part 1: Use Moon Markdown
 
 Moon Markdown is designed around one renderer and several ways to use it. The
 same MoonBit `render(markdown)` core is shared by the CLI and the browser UI, so
 the output stays consistent across entry points.
 
-### Online Website
+The easiest way to try it is the live demo at
+[moonbit.submergepsc.asia](https://moonbit.submergepsc.asia). The demo provides:
 
-An online website will be provided for direct browser usage. It is the easiest
-way to try the renderer without installing MoonBit or cloning the repository.
-
-The website is planned to provide the same UI workflow as the local web app:
-
-- Paste or type Markdown in the editor.
-- Preview the rendered HTML.
-- Upload a Markdown file from your computer.
-- Download the converted HTML file.
-
-### Local Web UI
-
-You can also run the web UI locally with Python's built-in static server.
-
-Build the browser entry:
-
-```bash
-moon build --target js
-```
-
-Serve the repository root:
-
-```bash
-python3 -m http.server 8080
-```
-
-Then open:
-
-```text
-http://127.0.0.1:8080/web/
-```
-
-The page loads the generated MoonBit JavaScript from:
-
-```text
-_build/js/debug/build/web/web.js
-```
-
-Run `moon build --target js` again after changing MoonBit source code.
-
-The local web UI supports both live editing and whole-file conversion:
-
-- `Open Markdown`: upload a local `.md` file into the editor.
-- HTML preview: view the rendered result in the browser.
-- `Copy HTML`: copy the rendered HTML.
-- `Download HTML`: save a standalone `.html` file.
-- `Markdown Preview (StackEdit)`: copy Markdown to clipboard and open StackEdit for comparison.
-- `HTML Preview (CodePen)`: copy rendered HTML to clipboard and open CodePen for visual verification.
+- A Markdown editor with live preview.
+- Upload Markdown files from your computer.
+- Download or copy the rendered HTML.
+- Open in StackEdit for Markdown comparison or CodePen for HTML visual check.
 
 ### CLI
 
@@ -112,6 +71,17 @@ moon test
 
 After this package is published to mooncakes.io, installation instructions will
 be updated with the real package command.
+
+To run the web UI locally:
+
+```bash
+moon build --target js
+python3 -m http.server 8080
+```
+
+Then open `http://127.0.0.1:8080/web/`. The page loads the generated MoonBit
+JavaScript from `_build/js/debug/build/web/web.js`. Run `moon build --target js`
+again after changing MoonBit source code.
 
 ## Part 2: Project Details
 
@@ -486,7 +456,7 @@ The renderer handles several edge cases gracefully:
 </p>
 ```
 
-### Escaping
+## Escaping
 
 Text content is HTML-escaped by default. This includes plain text, inline code,
 link labels, image alt text, link URLs, and image sources, so input like `<tag>`
@@ -495,6 +465,6 @@ is rendered as `&lt;tag&gt;`.
 Code block contents are also escaped, but inline markup is not expanded inside
 code blocks.
 
-### License
+## License
 
 Moon Markdown is licensed under the Apache License 2.0.
