@@ -161,10 +161,26 @@ test "render fenced code blocks" {
 }
 
 ///|
+test "render indented code blocks" {
+  inspect(
+    render("Before\n\n    fn main() {\n      run()\n    }\n\nAfter"),
+    content="<p>Before</p>\n<pre><code>fn main() {\n  run()\n}</code></pre>\n<p>After</p>",
+  )
+}
+
+///|
 test "escape fenced code without inline markup" {
   inspect(
     render("```\nUse `code` and <tag> & [link](url)\n```"),
     content="<pre><code>Use `code` and &lt;tag&gt; &amp; [link](url)</code></pre>",
+  )
+}
+
+///|
+test "render tilde fenced code with backtick fence text" {
+  inspect(
+    render("~~~markdown\n```text\ninside\n```\n~~~\nDone"),
+    content="<pre><code>```text\ninside\n```</code></pre>\n<p>Done</p>",
   )
 }
 

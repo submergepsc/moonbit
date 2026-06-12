@@ -179,11 +179,11 @@ pub fn render(markdown : String) -> String {
 
 使用波浪线包裹，内部包含反引号围栏：
 
-```markdown
+~~~markdown
 ```text
 内部 fenced block
 ```
-```
+~~~
 
 JSON 代码块：
 
@@ -235,6 +235,6 @@ ___
 
 嵌套中括号：[一个 [嵌套] 标签](https://demo.submergepsc.asia/nested)
 
-文件末尾反斜杠测试会出现在最后一节。
+文件末尾反斜杠测试。\
   
   

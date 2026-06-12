@@ -5,6 +5,8 @@ pub fn render(markdown : String) -> String {
   let mut list_tag = ""
   let mut in_table = false
   let mut in_code_block = false
+  let mut in_indented_code_block = false
+  let mut code_fence_marker = "```"
   let mut first_code_line = true
   let mut just_closed_code_block = false
   let mut in_blockquote = false
@@ -12,15 +14,37 @@ pub fn render(markdown : String) -> String {
   let mut paragraph_content = StringBuilder::new()
   for line in markdown.split("\n") {
     let trimmed = line.trim()
+    let mut consumed_line = false
     if in_code_block {
-      if is_code_fence_close(trimmed) {
+      if is_code_fence_close(trimmed, code_fence_marker) {
         close_code_block(out)
         in_code_block = false
         just_closed_code_block = true
       } else {
         first_code_line = write_code_block_line(out, line, first_code_line)
       }
-    } else {
+      consumed_line = true
+    }
+    if in_indented_code_block && !consumed_line {
+      if trimmed.is_empty() {
+        close_code_block(out)
+        in_indented_code_block = false
+        just_closed_code_block = false
+        consumed_line = true
+      } else if is_indented_code_line(line) {
+        first_code_line = write_code_block_line(
+          out,
+          indented_code_text(line),
+          first_code_line,
+        )
+        consumed_line = true
+      } else {
+        close_code_block(out)
+        in_indented_code_block = false
+        just_closed_code_block = true
+      }
+    }
+    if !consumed_line {
       if in_blockquote && !is_blockquote_line(trimmed) {
         close_blockquote(out, blockquote_content)
         blockquote_content = StringBuilder::new()
@@ -60,7 +84,7 @@ pub fn render(markdown : String) -> String {
           out.write_stringview("<blockquote>")
         }
         write_blockquote_content_line(blockquote_content, blockquote_text(trimmed))
-      } else if just_closed_code_block && is_code_fence_close(trimmed) {
+      } else if just_closed_code_block && is_any_code_fence_close(trimmed) {
         just_closed_code_block = false
       } else if is_reference_definition(trimmed) {
         first = close_paragraph(out, first, paragraph_content, markdown)
@@ -152,7 +176,18 @@ pub fn render(markdown : String) -> String {
                             paragraph_content = StringBuilder::new()
                             first = open_code_block(out, first)
                             in_code_block = true
+                            code_fence_marker = code_fence_marker_for(trimmed)
                             first_code_line = true
+                          } else if is_indented_code_start_line(line) {
+                            first = close_paragraph(out, first, paragraph_content, markdown)
+                            paragraph_content = StringBuilder::new()
+                            first = open_code_block(out, first)
+                            in_indented_code_block = true
+                            first_code_line = write_code_block_line(
+                              out,
+                              indented_code_text(line),
+                              true,
+                            )
                           } else if is_heading_line(trimmed) {
                             first = close_paragraph(out, first, paragraph_content, markdown)
                             paragraph_content = StringBuilder::new()
@@ -182,7 +217,18 @@ pub fn render(markdown : String) -> String {
                     paragraph_content = StringBuilder::new()
                     first = open_code_block(out, first)
                     in_code_block = true
+                    code_fence_marker = code_fence_marker_for(trimmed)
                     first_code_line = true
+                  } else if is_indented_code_start_line(line) {
+                    first = close_paragraph(out, first, paragraph_content, markdown)
+                    paragraph_content = StringBuilder::new()
+                    first = open_code_block(out, first)
+                    in_indented_code_block = true
+                    first_code_line = write_code_block_line(
+                      out,
+                      indented_code_text(line),
+                      true,
+                    )
                   } else if is_heading_line(trimmed) {
                     first = close_paragraph(out, first, paragraph_content, markdown)
                     paragraph_content = StringBuilder::new()
@@ -214,6 +260,9 @@ pub fn render(markdown : String) -> String {
   if in_code_block {
     close_code_block(out)
   }
+  if in_indented_code_block {
+    close_code_block(out)
+  }
   out.to_string()
 }
 
@@ -224,12 +273,49 @@ fn is_reference_definition(line : StringView) -> Bool {
 
 ///|
 fn is_code_fence(line : StringView) -> Bool {
-  line.strip_prefix("```") is Some(_)
+  line.strip_prefix("```") is Some(_) || line.strip_prefix("~~~") is Some(_)
 }
 
 ///|
-fn is_code_fence_close(line : StringView) -> Bool {
-  line == "```"
+fn code_fence_marker_for(line : StringView) -> String {
+  if line.strip_prefix("~~~") is Some(_) {
+    "~~~"
+  } else {
+    "```"
+  }
+}
+
+///|
+fn is_code_fence_close(line : StringView, marker : StringView) -> Bool {
+  line == marker
+}
+
+///|
+fn is_any_code_fence_close(line : StringView) -> Bool {
+  line == "```" || line == "~~~"
+}
+
+///|
+fn is_indented_code_line(line : StringView) -> Bool {
+  line.strip_prefix("    ") is Some(_) || line.strip_prefix("\t") is Some(_)
+}
+
+///|
+fn is_indented_code_start_line(line : StringView) -> Bool {
+  line.strip_prefix("\t") is Some(_) ||
+  (line.strip_prefix("    ") is Some(_) && line.strip_prefix("     ") is None)
+}
+
+///|
+fn indented_code_text(line : StringView) -> StringView {
+  match line.strip_prefix("    ") {
+    Some(text) => text
+    None =>
+      match line.strip_prefix("\t") {
+        Some(text) => text
+        None => line
+      }
+  }
 }
 
 ///|
