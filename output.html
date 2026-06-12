@@ -1,0 +1,168 @@
+<h1>Markdown 语法覆盖测试文档</h1>
+<p>这是一份用于测试 Markdown 转 HTML 渲染器的纯 Markdown 文档。它覆盖
+CommonMark 基础语法、GitHub Flavored Markdown 常用语法，以及若干常见扩展语法。
+如果某个渲染器暂不支持某些扩展，对应内容可以按普通文本保留。</p>
+<h1>1. 标题</h1>
+<h1>ATX 一级标题</h1>
+<h2>ATX 二级标题</h2>
+<h3>ATX 三级标题</h3>
+<h4>ATX 四级标题</h4>
+<h5>ATX 五级标题</h5>
+<h6>ATX 六级标题</h6>
+<p>Setext 一级标题</p>
+<p>Setext 二级标题</p>
+<h3>带结尾井号的标题</h3>
+<h3>带 <code>行内代码</code>、<strong>加粗</strong> 和 <a href="https://demo.submergepsc.asia">链接</a> 的标题</h3>
+<h1>2. 段落与换行</h1>
+<p>这是一个普通段落。源码中可以把同一个段落拆成多行书写，
+渲染后仍然应该作为一个连续段落处理。</p>
+<p>这一段末尾有两个空格，用来测试硬换行。<br>
+这一行应该在同一个段落内另起一行显示。</p>
+<p>这一段末尾使用反斜杠测试硬换行。<br>
+这一行也应该在同一个段落内另起一行显示。</p>
+<p>多个空行应该只负责分隔段落。</p>
+<p>这是额外空行之后的新段落。</p>
+<h1>3. 行内文本样式</h1>
+<p>普通文本、<strong>星号加粗文本</strong>、<strong>下划线分隔符加粗文本</strong>、<em>星号斜体文本</em>、
+<em>下划线分隔符斜体文本</em>、<strong><em>星号加粗斜体</em></strong>、<strong><em>下划线分隔符加粗斜体</em></strong></p>
+<p>使用 <code>行内代码</code>、<code>包含 ` 反引号的代码</code>，以及 <code>代码中的 &lt;&gt;&amp;&quot;' 符号</code>。</p>
+<p>转义标点应该保持字面含义：*不是斜体*、[不是链接]、# 不是标题、
+`不是代码`、\ 反斜杠。</p>
+<p>实体与特殊字符覆盖：&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;#39; © ® ™ 中文字符、
+日本語、한국어、emoji 😀，以及符号 ∑ π λ → ←。</p>
+<h1>4. 链接</h1>
+<p><a href="https://demo.submergepsc.asia/path?x=1&amp;y=2">行内链接</a></p>
+<p><a href="https://demo.submergepsc.asia">带 title 的行内链接</a></p>
+<p><a href="https://demo.submergepsc.asia/autolink">https://demo.submergepsc.asia/autolink</a></p>
+<p><a href="mailto:user@demo.submergepsc.asia">user@demo.submergepsc.asia</a></p>
+<p><a href="https://demo.submergepsc.asia/reference">引用式链接</a></p>
+<p><a href="https://demo.submergepsc.asia/collapsed">折叠引用式链接</a></p>
+<p><a href="https://demo.submergepsc.asia/shortcut">快捷引用式链接</a></p>
+<p><a href="https://demo.submergepsc.asia/bracket">包含转义右中括号 ] 的链接</a></p>
+<p><a href="https://demo.submergepsc.asia/code">链接文本中包含 <code>行内代码</code></a></p>
+<h1>5. 图片</h1>
+<p><img alt="行内图片替代文本" src="https://demo.submergepsc.asia/assets/example.svg"></p>
+<p><img alt="引用式图片替代文本" src="https://demo.submergepsc.asia/assets/example.svg"></p>
+<p><a href="https://demo.submergepsc.asia/image-link"><img alt="带链接的图片替代文本" src="https://demo.submergepsc.asia/assets/example.svg"></a></p>
+<h1>6. 引用块</h1>
+<blockquote><p>这是一个简单引用块。</p>
+<p>这是引用块中的第二个段落。</p>
+</blockquote>
+<blockquote><p>一级嵌套引用</p>
+<blockquote><p>二级嵌套引用</p>
+<ul>
+<li>引用中的列表项</li>
+<li>另一个引用列表项</li>
+</ul>
+</blockquote>
+<p>回到一级引用，并包含 <strong>行内格式</strong> 和 <code>代码</code>。</p>
+</blockquote>
+<h1>7. 列表</h1>
+<p>使用连字符的无序列表：</p>
+<ul>
+<li>第一项</li>
+<li>第二项</li>
+<li>第二项的子项 A</li>
+<li>第二项的子项 B</li>
+<li>第三项</li>
+</ul>
+<p>使用星号的无序列表：</p>
+<ul>
+<li>星号列表项</li>
+<li>另一个星号列表项</li>
+</ul>
+<p>使用加号的无序列表：</p>
+<ul>
+<li>加号列表项</li>
+<li>另一个加号列表项</li>
+</ul>
+<p>有序列表：</p>
+<ol>
+<li>第一项</li>
+<li>第二项</li>
+<li>第三项</li>
+</ol>
+<p>非 1 起始的有序列表：</p>
+<ol>
+<li>第五项</li>
+<li>第六项</li>
+<li>第七项</li>
+</ol>
+<p>混合嵌套列表：</p>
+<ol>
+<li>有序父项</li>
+</ol>
+<ul>
+<li>无序子项</li>
+</ul>
+<ol>
+<li>有序孙项</li>
+<li>另一个有序孙项</li>
+</ol>
+<ul>
+<li>带续接段落的子项</li>
+</ul>
+<p>     这个段落应该属于上面的子列表项。</p>
+<ol>
+<li>第二个有序父项</li>
+</ol>
+<p>宽松列表：</p>
+<ul>
+<li>宽松列表第一项。</li>
+</ul>
+<p>  这个段落应该保留在第一项内部。</p>
+<ul>
+<li>宽松列表第二项。</li>
+</ul>
+<p>任务列表：</p>
+<ul>
+<li><input type="checkbox" disabled checked> 已完成任务</li>
+<li><input type="checkbox" disabled> 未完成任务</li>
+<li><input type="checkbox" disabled checked> 使用大写 X 的已完成任务</li>
+</ul>
+<h1>8. 代码块</h1>
+<p>缩进代码块：</p>
+<p>    function indentedCodeBlock() {
+      return &quot;&lt;escaped&gt;&quot;;
+    }</p>
+<p>带语言标记的 fenced code block：</p>
+<pre><code>pub fn render(markdown : String) -&gt; String {
+  markdown
+}</code></pre>
+<p>不带语言标记的 fenced code block：</p>
+<pre><code>&lt;p&gt;这段内容应该作为代码显示，而不是被解析为 HTML。&lt;/p&gt;</code></pre>
+<p>使用波浪线包裹，内部包含反引号围栏：</p>
+<pre><code>```text
+内部 fenced block</code></pre>
+<p>JSON 代码块：</p>
+<pre><code>{
+  &quot;markdown&quot;: true,
+  &quot;escape&quot;: &quot;&lt;&gt;&amp;\&quot;&quot;,
+  &quot;items&quot;: [1, 2, 3]
+}</code></pre>
+<h1>9. 表格</h1>
+<table>
+<tr><td>左对齐</td><td>居中对齐</td><td>右对齐</td><td>行内语法</td></tr>
+<tr><td>甲</td><td>乙</td><td>123</td><td><strong>加粗</strong></td></tr>
+<tr><td>丙</td><td>丁</td><td>456.78</td><td><code>代码</code></td></tr>
+<tr><td>包含转义竖线 | 的单元格</td><td>emoji 😀</td><td>-9</td><td><a href="https://demo.submergepsc.asia">链接</a></td></tr>
+</table>
+<p>紧凑表格：</p>
+<table>
+<tr><td>A</td><td>B</td></tr>
+<tr><td>1</td><td>2</td></tr>
+</table>
+<h1>10. 水平分割线</h1>
+<p>连字符分割线：</p>
+<hr>
+<p>星号分割线：</p>
+<hr>
+<p>下划线分割线：</p>
+<hr>
+<h1>11. 边界情况</h1>
+<p>连续行内标记：<strong>加粗</strong><strong>也是加粗?</strong><em>斜体</em><em>也是斜体?</em></p>
+<p>未闭合标记应有可预测的降级行为：**加粗开始但没有结束。</p>
+<p>空链接目标：<a href="">空链接</a></p>
+<p>空图片目标：<img alt="空图片" src=""></p>
+<p>嵌套中括号：<a href="https://demo.submergepsc.asia/nested">一个 [嵌套] 标签</a></p>
+<p>文件末尾反斜杠测试会出现在最后一节。</p>

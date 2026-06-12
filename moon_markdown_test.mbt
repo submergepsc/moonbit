@@ -7,6 +7,14 @@ test "render headings and paragraphs" {
 }
 
 ///|
+test "merge soft-wrapped paragraph lines and render hard breaks" {
+  inspect(
+    render("first line\nsecond line\n\nhard break  \nnext line\n\nslash break\\\nnext slash"),
+    content="<p>first line\nsecond line</p>\n<p>hard break<br>\nnext line</p>\n<p>slash break<br>\nnext slash</p>",
+  )
+}
+
+///|
 test "trim closing heading hashes" {
   inspect(
     render("### 带结尾井号的标题 ###"),

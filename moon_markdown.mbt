@@ -9,6 +9,7 @@ pub fn render(markdown : String) -> String {
   let mut just_closed_code_block = false
   let mut in_blockquote = false
   let mut blockquote_content = StringBuilder::new()
+  let mut paragraph_content = StringBuilder::new()
   for line in markdown.split("\n") {
     let trimmed = line.trim()
     if in_code_block {
@@ -26,6 +27,8 @@ pub fn render(markdown : String) -> String {
         in_blockquote = false
       }
       if trimmed.is_empty() {
+        first = close_paragraph(out, first, paragraph_content, markdown)
+        paragraph_content = StringBuilder::new()
         just_closed_code_block = false
         if !list_tag.is_empty() {
           close_list(out, list_tag)
@@ -37,6 +40,8 @@ pub fn render(markdown : String) -> String {
         }
       } else if is_blockquote_line(trimmed) {
         just_closed_code_block = false
+        first = close_paragraph(out, first, paragraph_content, markdown)
+        paragraph_content = StringBuilder::new()
         if !list_tag.is_empty() {
           close_list(out, list_tag)
           list_tag = ""
@@ -58,13 +63,19 @@ pub fn render(markdown : String) -> String {
       } else if just_closed_code_block && is_code_fence_close(trimmed) {
         just_closed_code_block = false
       } else if is_reference_definition(trimmed) {
+        first = close_paragraph(out, first, paragraph_content, markdown)
+        paragraph_content = StringBuilder::new()
         just_closed_code_block = false
         // Skip reference link definitions: [label]: url
         ()
       } else if is_table_separator(trimmed) {
+        first = close_paragraph(out, first, paragraph_content, markdown)
+        paragraph_content = StringBuilder::new()
         just_closed_code_block = false
         ()
       } else if is_table_row(trimmed) {
+        first = close_paragraph(out, first, paragraph_content, markdown)
+        paragraph_content = StringBuilder::new()
         just_closed_code_block = false
         if !list_tag.is_empty() {
           close_list(out, list_tag)
@@ -83,6 +94,8 @@ pub fn render(markdown : String) -> String {
         }
         match unordered_list_item_text(trimmed) {
           Some(item) => {
+            first = close_paragraph(out, first, paragraph_content, markdown)
+            paragraph_content = StringBuilder::new()
             if list_tag != "ul" {
               if !list_tag.is_empty() {
                 close_list(out, list_tag)
@@ -95,6 +108,8 @@ pub fn render(markdown : String) -> String {
           None =>
             match ordered_list_item_text(trimmed) {
               Some(item) => {
+                first = close_paragraph(out, first, paragraph_content, markdown)
+                paragraph_content = StringBuilder::new()
                 if list_tag != "ol" {
                   if !list_tag.is_empty() {
                     close_list(out, list_tag)
@@ -108,6 +123,8 @@ pub fn render(markdown : String) -> String {
                 if trimmed.has_prefix("  ") {
                   match unordered_list_item_indented(trimmed, 2) {
                     Some(item) => {
+                      first = close_paragraph(out, first, paragraph_content, markdown)
+                      paragraph_content = StringBuilder::new()
                       out.write_stringview("\n<ul>\n<li>")
                       write_inline(out, item, markdown)
                       out.write_stringview("</li>\n</ul>")
@@ -115,6 +132,8 @@ pub fn render(markdown : String) -> String {
                     None =>
                       match ordered_list_item_indented(trimmed, 2) {
                         Some(item) => {
+                          first = close_paragraph(out, first, paragraph_content, markdown)
+                          paragraph_content = StringBuilder::new()
                           out.write_stringview("\n<ol>\n<li>")
                           write_inline(out, item, markdown)
                           out.write_stringview("</li>\n</ol>")
@@ -125,18 +144,26 @@ pub fn render(markdown : String) -> String {
                             list_tag = ""
                           }
                           if is_horizontal_rule(trimmed) {
+                            first = close_paragraph(out, first, paragraph_content, markdown)
+                            paragraph_content = StringBuilder::new()
                             first = write_horizontal_rule(out, first)
                           } else if is_code_fence(trimmed) {
+                            first = close_paragraph(out, first, paragraph_content, markdown)
+                            paragraph_content = StringBuilder::new()
                             first = open_code_block(out, first)
                             in_code_block = true
                             first_code_line = true
-                          } else {
+                          } else if is_heading_line(trimmed) {
+                            first = close_paragraph(out, first, paragraph_content, markdown)
+                            paragraph_content = StringBuilder::new()
                             if first {
                               first = false
                             } else {
                               out.write_stringview("\n")
                             }
                             render_line(out, trimmed, markdown)
+                          } else {
+                            append_paragraph_line(paragraph_content, line)
                           }
                         }
                       }
@@ -147,18 +174,26 @@ pub fn render(markdown : String) -> String {
                     list_tag = ""
                   }
                   if is_horizontal_rule(trimmed) {
+                    first = close_paragraph(out, first, paragraph_content, markdown)
+                    paragraph_content = StringBuilder::new()
                     first = write_horizontal_rule(out, first)
                   } else if is_code_fence(trimmed) {
+                    first = close_paragraph(out, first, paragraph_content, markdown)
+                    paragraph_content = StringBuilder::new()
                     first = open_code_block(out, first)
                     in_code_block = true
                     first_code_line = true
-                  } else {
+                  } else if is_heading_line(trimmed) {
+                    first = close_paragraph(out, first, paragraph_content, markdown)
+                    paragraph_content = StringBuilder::new()
                     if first {
                       first = false
                     } else {
                       out.write_stringview("\n")
                     }
                     render_line(out, trimmed, markdown)
+                  } else {
+                    append_paragraph_line(paragraph_content, line)
                   }
                 }
             }
@@ -169,6 +204,7 @@ pub fn render(markdown : String) -> String {
   if in_blockquote {
     close_blockquote(out, blockquote_content)
   }
+  first = close_paragraph(out, first, paragraph_content, markdown)
   if !list_tag.is_empty() {
     close_list(out, list_tag)
   }
@@ -194,6 +230,16 @@ fn is_code_fence(line : StringView) -> Bool {
 ///|
 fn is_code_fence_close(line : StringView) -> Bool {
   line == "```"
+}
+
+///|
+fn is_heading_line(line : StringView) -> Bool {
+  line.strip_prefix("# ") is Some(_) ||
+  line.strip_prefix("## ") is Some(_) ||
+  line.strip_prefix("### ") is Some(_) ||
+  line.strip_prefix("#### ") is Some(_) ||
+  line.strip_prefix("##### ") is Some(_) ||
+  line.strip_prefix("###### ") is Some(_)
 }
 
 ///|
@@ -400,6 +446,90 @@ fn write_blockquote_content_line(
 fn close_blockquote(out : StringBuilder, content : StringBuilder) -> Unit {
   out.write_stringview(render(content.to_string()))
   out.write_stringview("\n</blockquote>")
+}
+
+///|
+fn append_paragraph_line(content : StringBuilder, line : StringView) -> Unit {
+  let current = content.to_string()
+  if current.length() > 0 && !ends_with_hard_break_marker(current) {
+    content.write_stringview("\n")
+  }
+  write_paragraph_source_line(content, line)
+  if has_hard_break(line) {
+    content.write_stringview("\n<moon-md-br>\n")
+  }
+}
+
+///|
+fn ends_with_hard_break_marker(text : String) -> Bool {
+  let marker = "\n<moon-md-br>\n"
+  text.length() >= marker.length() &&
+  text.view(start_offset=text.length() - marker.length()) == marker
+}
+
+///|
+fn write_paragraph_source_line(content : StringBuilder, line : StringView) -> Unit {
+  let mut end = line.length()
+  if line_has_backslash_break(line) {
+    end = end - 1
+  } else if line_has_space_break(line) {
+    end = end - 2
+  }
+  content.write_stringview(line.view(end_offset=end))
+}
+
+///|
+fn has_hard_break(line : StringView) -> Bool {
+  line_has_backslash_break(line) || line_has_space_break(line)
+}
+
+///|
+fn line_has_backslash_break(line : StringView) -> Bool {
+  line.length() > 0 &&
+  line.view(start_offset=line.length() - 1, end_offset=line.length()) == "\\"
+}
+
+///|
+fn line_has_space_break(line : StringView) -> Bool {
+  line.length() > 1 &&
+  line.view(start_offset=line.length() - 2, end_offset=line.length()) == "  "
+}
+
+///|
+fn close_paragraph(
+  out : StringBuilder,
+  first : Bool,
+  content : StringBuilder,
+  references : String,
+) -> Bool {
+  let text = content.to_string()
+  if text.is_empty() {
+    return first
+  }
+  if !first {
+    out.write_stringview("\n")
+  }
+  out.write_stringview("<p>")
+  write_paragraph_inline(out, text, references)
+  out.write_stringview("</p>")
+  false
+}
+
+///|
+fn write_paragraph_inline(
+  out : StringBuilder,
+  text : String,
+  references : String,
+) -> Unit {
+  let mut first_part = true
+  for part in text.split("\n<moon-md-br>\n") {
+    if first_part {
+      first_part = false
+    } else {
+      out.write_stringview("<br>\n")
+    }
+    write_inline(out, part, references)
+  }
 }
 
 ///|

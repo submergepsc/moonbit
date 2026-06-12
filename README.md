@@ -63,19 +63,19 @@ The local web UI supports both live editing and whole-file conversion:
 - `Download HTML`: save a standalone `.html` file.
 
 ### CLI
-
+	
 Use the CLI package to convert Markdown files from the command line.
 
 Render a Markdown file to stdout:
 
 ```bash
-moon run cli --target js README.md
+moon run cli --target js example.md
 ```
 
 Render a Markdown file into an HTML file:
 
 ```bash
-moon run cli --target js README.md output.html
+moon run cli --target js example.md output.html
 ```
 
 Run the included input/output fixture:

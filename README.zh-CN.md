@@ -63,18 +63,19 @@ _build/js/debug/build/web/web.js
 
 ### 命令行
 
+
 你可以使用 CLI 包在命令行中转换 Markdown 文件。
 
 将 Markdown 文件渲染到标准输出：
 
 ```bash
-moon run cli --target js README.md
+moon run cli --target js example.md
 ```
 
 将 Markdown 文件转换为 HTML 文件：
 
 ```bash
-moon run cli --target js README.md output.html
+moon run cli --target js example.md output.html
 ```
 
 运行仓库中提供的输入/输出 fixture：
