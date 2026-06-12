@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Moon Markdown Local Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -17,6 +18,8 @@
         <input id="file-input" type="file" accept=".md,.markdown,text/markdown,text/plain" />
         <button id="download-html" type="button">Download HTML</button>
         <button id="copy-html" type="button">Copy HTML</button>
+        <button id="open-stackedit" type="button">Markdown 预览</button>
+        <button id="open-codepen" type="button">HTML 预览</button>
       </div>
     </header>
 
@@ -44,7 +47,7 @@
       </section>
     </main>
 
-    <script src="../_build/js/debug/build/web/web.js"></script>
-    <script src="./app.js"></script>
+    <script src="../_build/js/debug/build/web/web.js" onerror="console.error('web.js failed to load')"></script>
+    <script src="./app.js" onerror="console.error('app.js failed to load')"></script>
   </body>
 </html>

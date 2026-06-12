@@ -19,20 +19,27 @@ const status = document.querySelector("#status");
 const fileInput = document.querySelector("#file-input");
 const downloadButton = document.querySelector("#download-html");
 const copyButton = document.querySelector("#copy-html");
+const stackeditButton = document.querySelector("#open-stackedit");
+const codePenButton = document.querySelector("#open-codepen");
 
 let sourceFileName = "moon-markdown";
 
-function renderMarkdown() {
+const md = markdownit({ html: true, linkify: true, typographer: true });
+
+function renderMoonHtml() {
   if (!globalThis.MoonMarkdown || typeof globalThis.MoonMarkdown.render !== "function") {
-    status.textContent = "Renderer not loaded";
     return "";
   }
+  return globalThis.MoonMarkdown.render(input.value);
+}
 
-  const html = globalThis.MoonMarkdown.render(input.value);
-  preview.innerHTML = html;
-  output.textContent = html;
-  status.textContent = "Rendered";
-  return html;
+function renderMarkdown() {
+  preview.innerHTML = md.render(input.value);
+
+  const moonHtml = renderMoonHtml();
+  output.textContent = moonHtml;
+  status.textContent = moonHtml ? "Rendered" : "Renderer not loaded";
+  return moonHtml;
 }
 
 input.value = initialMarkdown;
@@ -40,10 +47,7 @@ input.addEventListener("input", renderMarkdown);
 
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
-  if (!file) {
-    return;
-  }
-
+  if (!file) return;
   sourceFileName = file.name.replace(/\.[^.]+$/, "") || "moon-markdown";
   input.value = await file.text();
   renderMarkdown();
@@ -77,6 +81,26 @@ copyButton.addEventListener("click", async () => {
   await navigator.clipboard.writeText(output.textContent);
   status.textContent = "HTML copied";
 });
+
+// StackEdit: 复制 Markdown → 跳转 → 粘贴
+if (stackeditButton) {
+  stackeditButton.addEventListener("click", async () => {
+    const markdown = input.value;
+    await navigator.clipboard.writeText(markdown);
+    status.textContent = "Copied to clipboard, opening StackEdit...";
+    window.location.href = "https://stackedit.io/app";
+  });
+}
+
+// CodePen: 复制 MoonBit 生成的 HTML → 跳转 → 粘贴到 HTML 窗格
+if (codePenButton) {
+  codePenButton.addEventListener("click", async () => {
+    const html = output.textContent || renderMoonHtml();
+    await navigator.clipboard.writeText(html);
+    status.textContent = "Copied to clipboard, opening CodePen...";
+    window.location.href = "https://codepen.io/pen/";
+  });
+}
 
 function escapeHtml(text) {
   return text
