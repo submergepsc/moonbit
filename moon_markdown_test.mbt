@@ -7,6 +7,14 @@ test "render headings and paragraphs" {
 }
 
 ///|
+test "trim closing heading hashes" {
+  inspect(
+    render("### 带结尾井号的标题 ###"),
+    content="<h3>带结尾井号的标题</h3>",
+  )
+}
+
+///|
 test "escape html special characters" {
   inspect(
     render("Use <tag> & \"quote\""),
@@ -31,9 +39,33 @@ test "render links" {
 }
 
 ///|
+test "render reference links" {
+  inspect(
+    render("[inline][ref]\n\n[collapsed][]\n\n[shortcut]\n\n[ref]: https://example.com/ref \"title\"\n[collapsed]: https://example.com/collapsed\n[shortcut]: https://example.com/shortcut"),
+    content="<p><a href=\"https://example.com/ref\">inline</a></p>\n<p><a href=\"https://example.com/collapsed\">collapsed</a></p>\n<p><a href=\"https://example.com/shortcut\">shortcut</a></p>",
+  )
+}
+
+///|
 test "render images" {
   inspect(
     render("Logo: ![MoonBit logo](/assets/moon.png)"),
+    content="<p>Logo: <img alt=\"MoonBit logo\" src=\"/assets/moon.png\"></p>",
+  )
+}
+
+///|
+test "render linked images" {
+  inspect(
+    render("[![MoonBit logo](/assets/moon.png)](https://example.com)"),
+    content="<p><a href=\"https://example.com\"><img alt=\"MoonBit logo\" src=\"/assets/moon.png\"></a></p>",
+  )
+}
+
+///|
+test "render reference images" {
+  inspect(
+    render("Logo: ![MoonBit logo][logo]\n\n[logo]: /assets/moon.png \"title\""),
     content="<p>Logo: <img alt=\"MoonBit logo\" src=\"/assets/moon.png\"></p>",
   )
 }
@@ -71,6 +103,14 @@ test "render unordered lists" {
 }
 
 ///|
+test "render task lists" {
+  inspect(
+    render("- [x] Done\n- [ ] Todo\n- [X] Also done"),
+    content="<ul>\n<li><input type=\"checkbox\" disabled checked> Done</li>\n<li><input type=\"checkbox\" disabled> Todo</li>\n<li><input type=\"checkbox\" disabled checked> Also done</li>\n</ul>",
+  )
+}
+
+///|
 test "render ordered lists" {
   inspect(
     render("1. Parse\n2. Render [HTML](https://example.com/?q=<tag>)"),
@@ -97,6 +137,14 @@ test "render pipe tables" {
 }
 
 ///|
+test "keep escaped pipe inside table cell" {
+  inspect(
+    render("|A|B|\n|-|-|\n|a \\| b|c|"),
+    content="<table>\n<tr><td>A</td><td>B</td></tr>\n<tr><td>a | b</td><td>c</td></tr>\n</table>",
+  )
+}
+
+///|
 test "render fenced code blocks" {
   inspect(
     render("# Example\n```moonbit\nlet x = 1\nprintln(x)\n```\nDone"),
@@ -113,10 +161,42 @@ test "escape fenced code without inline markup" {
 }
 
 ///|
+test "keep nested fence opener text inside fenced code" {
+  inspect(
+    render("```markdown\n```text\ninside\n```\nDone"),
+    content="<pre><code>```text\ninside</code></pre>\n<p>Done</p>",
+  )
+}
+
+///|
+test "ignore immediate extra fence after fenced code close" {
+  inspect(
+    render("```markdown\n```text\ninside\n```\n```\nAfter"),
+    content="<pre><code>```text\ninside</code></pre>\n<p>After</p>",
+  )
+}
+
+///|
 test "close unclosed fenced code at end" {
   inspect(
     render("Before\n```\nlet html = \"<p>\""),
     content="<p>Before</p>\n<pre><code>let html = &quot;&lt;p&gt;&quot;</code></pre>",
+  )
+}
+
+///|
+test "close blockquote before following heading" {
+  inspect(
+    render("> quoted\n\n# After"),
+    content="<blockquote><p>quoted</p>\n</blockquote>\n<h1>After</h1>",
+  )
+}
+
+///|
+test "render nested blockquote and list content" {
+  inspect(
+    render("> outer\n>\n> > inner\n> > - item\n>\n> back with **strong**"),
+    content="<blockquote><p>outer</p>\n<blockquote><p>inner</p>\n<ul>\n<li>item</li>\n</ul>\n</blockquote>\n<p>back with <strong>strong</strong></p>\n</blockquote>",
   )
 }
 
@@ -135,3 +215,4 @@ test "leave incomplete inline markup escaped" {
     content="<p>Use `code and [link](https://example.com and ![img](src</p>",
   )
 }
+  
