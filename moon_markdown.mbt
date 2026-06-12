@@ -3,6 +3,7 @@ pub fn render(markdown : String) -> String {
   let out = StringBuilder::new()
   let mut first = true
   let mut list_tag = ""
+  let mut in_table = false
   let mut in_code_block = false
   let mut first_code_line = true
   for line in markdown.split("\n") {
@@ -15,7 +16,24 @@ pub fn render(markdown : String) -> String {
         first_code_line = write_code_block_line(out, line, first_code_line)
       }
     } else if !trimmed.is_empty() {
-      match unordered_list_item_text(trimmed) {
+      if is_table_separator(trimmed) {
+        ()
+      } else if is_table_row(trimmed) {
+        if !list_tag.is_empty() {
+          close_list(out, list_tag)
+          list_tag = ""
+        }
+        if !in_table {
+          first = open_table(out, first)
+          in_table = true
+        }
+        write_table_row(out, trimmed)
+      } else {
+        if in_table {
+          close_table(out)
+          in_table = false
+        }
+        match unordered_list_item_text(trimmed) {
         Some(item) => {
           if list_tag != "ul" {
             if !list_tag.is_empty() {
@@ -43,7 +61,9 @@ pub fn render(markdown : String) -> String {
                 close_list(out, list_tag)
                 list_tag = ""
               }
-              if is_code_fence(trimmed) {
+              if is_horizontal_rule(trimmed) {
+                first = write_horizontal_rule(out, first)
+              } else if is_code_fence(trimmed) {
                 first = open_code_block(out, first)
                 in_code_block = true
                 first_code_line = true
@@ -58,10 +78,14 @@ pub fn render(markdown : String) -> String {
             }
           }
       }
+      }
     }
   }
   if !list_tag.is_empty() {
     close_list(out, list_tag)
+  }
+  if in_table {
+    close_table(out)
   }
   if in_code_block {
     close_code_block(out)
@@ -72,6 +96,21 @@ pub fn render(markdown : String) -> String {
 ///|
 fn is_code_fence(line : StringView) -> Bool {
   line.strip_prefix("```") is Some(_)
+}
+
+///|
+fn is_horizontal_rule(line : StringView) -> Bool {
+  line == "---"
+}
+
+///|
+fn is_table_row(line : StringView) -> Bool {
+  line.strip_prefix("|") is Some(_) && find_from(line, 1, "|") is Some(_)
+}
+
+///|
+fn is_table_separator(line : StringView) -> Bool {
+  is_table_row(line) && find_from(line, 0, "---") is Some(_)
 }
 
 ///|
@@ -161,6 +200,53 @@ fn write_code_block_line(
 }
 
 ///|
+fn open_table(out : StringBuilder, first : Bool) -> Bool {
+  if !first {
+    out.write_stringview("\n")
+  }
+  out.write_stringview("<table>")
+  false
+}
+
+///|
+fn close_table(out : StringBuilder) -> Unit {
+  out.write_stringview("\n</table>")
+}
+
+///|
+fn write_table_row(out : StringBuilder, line : StringView) -> Unit {
+  out.write_stringview("\n<tr>")
+  for cell in table_content(line).split("|") {
+    out.write_stringview("<td>")
+    write_inline(out, cell.trim())
+    out.write_stringview("</td>")
+  }
+  out.write_stringview("</tr>")
+}
+
+///|
+fn table_content(line : StringView) -> StringView {
+  let mut start = 0
+  let mut end = line.length()
+  if end > 0 && line.view(end_offset=1) == "|" {
+    start = 1
+  }
+  if end > start && line.view(start_offset=end - 1, end_offset=end) == "|" {
+    end = end - 1
+  }
+  line.view(start_offset=start, end_offset=end)
+}
+
+///|
+fn write_horizontal_rule(out : StringBuilder, first : Bool) -> Bool {
+  if !first {
+    out.write_stringview("\n")
+  }
+  out.write_stringview("<hr>")
+  false
+}
+
+///|
 fn render_line(out : StringBuilder, line : StringView) -> Unit {
   match line.strip_prefix("### ") {
     Some(text) => write_tag(out, "h3", text)
@@ -207,6 +293,7 @@ fn write_inline_from(
       match text.view(start_offset=marker_index, end_offset=marker_index + 1) {
         "`" => write_code_span(out, text, start, marker_index)
         "[" => write_link(out, text, start, marker_index)
+        "*" => write_strong(out, text, start, marker_index)
         _ => write_escaped(out, text.view(start_offset=start))
       }
   }
@@ -214,16 +301,24 @@ fn write_inline_from(
 
 ///|
 fn find_next_inline_marker(text : StringView, start : Int) -> Int? {
-  match find_from(text, start, "`") {
-    None => find_from(text, start, "[")
-    Some(code_index) =>
-      match find_from(text, start, "[") {
-        None => Some(code_index)
-        Some(link_index) =>
-          if code_index < link_index {
-            Some(code_index)
+  earliest_index(
+    earliest_index(find_from(text, start, "`"), find_from(text, start, "[")),
+    find_from(text, start, "**"),
+  )
+}
+
+///|
+fn earliest_index(left : Int?, right : Int?) -> Int? {
+  match left {
+    None => right
+    Some(left_index) =>
+      match right {
+        None => Some(left_index)
+        Some(right_index) =>
+          if left_index < right_index {
+            Some(left_index)
           } else {
-            Some(link_index)
+            Some(right_index)
           }
       }
   }
@@ -244,6 +339,25 @@ fn write_code_span(
       write_escaped(out, text.view(start_offset=open_index + 1, end_offset=close_index))
       out.write_stringview("</code>")
       write_inline_from(out, text, close_index + 1)
+    }
+  }
+}
+
+///|
+fn write_strong(
+  out : StringBuilder,
+  text : StringView,
+  start : Int,
+  open_index : Int
+) -> Unit {
+  match find_from(text, open_index + 2, "**") {
+    None => write_escaped(out, text.view(start_offset=start))
+    Some(close_index) => {
+      write_escaped(out, text.view(start_offset=start, end_offset=open_index))
+      out.write_stringview("<strong>")
+      write_inline(out, text.view(start_offset=open_index + 2, end_offset=close_index))
+      out.write_stringview("</strong>")
+      write_inline_from(out, text, close_index + 2)
     }
   }
 }

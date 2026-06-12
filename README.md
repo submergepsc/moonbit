@@ -21,7 +21,10 @@ supported feature.
 - Ordered lists with `1. item`
 - Fenced code blocks with triple backticks
 - Inline code with `` `code` ``
+- Strong text with `**text**`
 - Links with `[label](url)`
+- Horizontal rules with `---`
+- Pipe tables with `| cell | cell |`
 - HTML escaping for `&`, `<`, `>`, and `"`
 
 ## Installation

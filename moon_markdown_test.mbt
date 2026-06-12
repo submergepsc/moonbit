@@ -31,6 +31,22 @@ test "render links" {
 }
 
 ///|
+test "render strong text" {
+  inspect(
+    render("Learn **computer networks** with `MoonBit`"),
+    content="<p>Learn <strong>computer networks</strong> with <code>MoonBit</code></p>",
+  )
+}
+
+///|
+test "render horizontal rules" {
+  inspect(
+    render("Intro\n---\n# Title"),
+    content="<p>Intro</p>\n<hr>\n<h1>Title</h1>",
+  )
+}
+
+///|
 test "render unordered lists" {
   inspect(
     render("- Use `moon check`\n- Escape <html>"),
@@ -51,6 +67,14 @@ test "separate lists from surrounding blocks" {
   inspect(
     render("# Steps\n\n1. Parse\n2. Render\n\nDone"),
     content="<h1>Steps</h1>\n<ol>\n<li>Parse</li>\n<li>Render</li>\n</ol>\n<p>Done</p>",
+  )
+}
+
+///|
+test "render pipe tables" {
+  inspect(
+    render("|英文术语|缩写|中文含义|\n|---|---|---|\n|Network|net|网络|\n|Host|host|主机|\n\nDone"),
+    content="<table>\n<tr><td>英文术语</td><td>缩写</td><td>中文含义</td></tr>\n<tr><td>Network</td><td>net</td><td>网络</td></tr>\n<tr><td>Host</td><td>host</td><td>主机</td></tr>\n</table>\n<p>Done</p>",
   )
 }
 
