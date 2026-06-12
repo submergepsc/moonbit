@@ -105,6 +105,12 @@ To convert a whole Markdown file into an HTML file:
 moon run cli --target js README.md output.html
 ```
 
+The repository includes a complete input/output fixture:
+
+```bash
+moon run cli --target js examples/basic.md examples/basic.html
+```
+
 ## Example
 
 ```moonbit
